@@ -17,9 +17,8 @@ then
   if grep -q "/etc/wal-e.d/env" "/var/lib/postgresql/data/recovery.conf"; then
     echo "wal-e already configured in /var/lib/postgresql/data/recovery.conf"
   else
-    if gosu postgres pg_ctl -D "$PGDATA" status | grep "server is running"; then
-      gosu postgres pg_ctl -D "$PGDATA" -w stop
-    fi
+    sleep 5
+    gosu postgres pg_ctl -D "$PGDATA" -w stop
     # $PGDATA cannot be removed so use temporary dir
     # If you don't stop the server first, you'll waste 5hrs debugging why your WALs aren't pulled
     su - postgres -c "envdir /etc/wal-e.d/env /usr/local/bin/wal-e backup-fetch /tmp/pg-data LATEST"
