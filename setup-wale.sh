@@ -17,7 +17,7 @@ then
   if grep -q "/etc/wal-e.d/env" "/var/lib/postgresql/data/recovery.conf"; then
     echo "wal-e already configured in /var/lib/postgresql/data/recovery.conf"
   else
-    if gosu postgres pg_ctl -D "$PGDATA" status | grep running; then
+    if gosu postgres pg_ctl -D "$PGDATA" status | grep "server is running"; then
       gosu postgres pg_ctl -D "$PGDATA" -w stop
     fi
     # $PGDATA cannot be removed so use temporary dir
