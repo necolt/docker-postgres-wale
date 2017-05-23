@@ -1,4 +1,4 @@
-FROM postgres:9.4.9
+FROM postgres:9.6
 
 MAINTAINER Luke Smith
 
