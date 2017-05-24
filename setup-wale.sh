@@ -16,8 +16,8 @@ then
     rm -rf /tmp/pg-data
 
     # Create recovery.conf
-    echo "hot_standby      = 'on'" > $PGDATA/recovery.conf
-    echo "standby_mode     = 'on'" >> $PGDATA/recovery.conf
+    echo "hot_standby      = 'on'" >> /var/lib/postgresql/data/postgresql.conf
+    echo "standby_mode     = 'on'" > $PGDATA/recovery.conf
     echo "restore_command  = 'envdir /etc/wal-e.d/env /usr/local/bin/wal-e wal-fetch "%f" "%p"'" >> $PGDATA/recovery.conf
     echo "trigger_file     = '$PGDATA/trigger'" >> $PGDATA/recovery.conf
 
