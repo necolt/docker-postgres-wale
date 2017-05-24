@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Assumption: the group is trusted to read secret information
-# umask u=rwx,g=rx,o=
+umask u=rwx,g=rx,o=
 mkdir -p /etc/wal-e.d/env
 
 echo "$WALE_AWS_SECRET_ACCESS_KEY" > /etc/wal-e.d/env/AWS_SECRET_ACCESS_KEY
