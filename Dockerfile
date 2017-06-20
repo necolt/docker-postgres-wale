@@ -11,6 +11,6 @@ COPY entrypoint.sh /
 ENTRYPOINT ["dumb-init", "--", "/entrypoint.sh"]
 
 COPY setup-wale.sh fix-acl.sh /docker-entrypoint-initdb.d/
-COPY backup /
+COPY backup private.key /
 
 CMD ["postgres"]

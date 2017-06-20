@@ -11,6 +11,14 @@ if [ "$1" = 'postgres' ]; then
   echo "$WALE_AWS_ACCESS_KEY_ID" > /etc/wal-e.d/env/AWS_ACCESS_KEY_ID
   echo "$WALE_S3_PREFIX" > /etc/wal-e.d/env/WALE_S3_PREFIX
   echo "$WALE_AWS_REGION" > /etc/wal-e.d/env/AWS_REGION
+
+  if [ -n "$WALE_GPG_KEY_ID" ]
+  then
+    echo "$WALE_GPG_KEY_ID" > /etc/wal-e.d/env/WALE_GPG_KEY_ID
+    mkdir '/home/postgres'
+    chown postgres:postgres /home/postgres
+  fi
+
   chown -R root:postgres /etc/wal-e.d
 
   if [ ! -s "$PGDATA/PG_VERSION" ]; then

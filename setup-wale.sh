@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -n "$WALE_GPG_KEY_ID" ]
+then
+  gpg --keyserver keyserver.ubuntu.com --recv-keys $WALE_GPG_KEY_ID
+  echo "$(gpg --list-keys --fingerprint | grep $WALE_GPG_KEY_ID -A 1 | tail -1 | tr -d '[:space:]' | cut -f2 -d'='):6:" | gpg --import-ownertrust
+  gpg --import /private.key
+fi
+
 if [ "$POSTGRES_AUTHORITY" = "slave" ]
 then
   echo "Authority: Slave - Fetching latest backups";
@@ -16,6 +23,10 @@ then
     rm -rf /tmp/pg-data
 
     # Create recovery.conf
+    echo "hot_standby      = 'on'" >> /var/lib/postgresql/data/postgresql.conf
+    if [ -n "$POSTGRES_MAX_CONNECTIONS" ]; then
+      echo "max_connections  = '$POSTGRES_MAX_CONNECTIONS'" >> /var/lib/postgresql/data/postgresql.conf
+    fi
     echo "standby_mode     = 'on'" > $PGDATA/recovery.conf
     echo "restore_command  = 'envdir /etc/wal-e.d/env /usr/local/bin/wal-e wal-fetch "%f" "%p"'" >> $PGDATA/recovery.conf
     echo "trigger_file     = '$PGDATA/trigger'" >> $PGDATA/recovery.conf
@@ -24,7 +35,7 @@ then
     fi
 
     # Starting server again to satisfy init script
-    pg_ctl -D "$PGDATA" -o "-c listen_addresses=''" -w start
+    pg_ctl -t 100000 -D "$PGDATA" -o "-c listen_addresses=''" -w start
 
     # Set password for 'postgres' user
     if [ -n "$POSTGRES_PASSWORD" ]; then
