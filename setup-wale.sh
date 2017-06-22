@@ -18,15 +18,22 @@ then
     pg_ctl -D "$PGDATA" -w stop
     # $PGDATA cannot be removed so use temporary dir
     # If you don't stop the server first, you'll waste 5hrs debugging why your WALs aren't pulled
-    envdir /etc/wal-e.d/env /usr/local/bin/wal-e backup-fetch /tmp/pg-data LATEST
+
+    if [ -z "$WALE_BASE_BACKUP" ]; then
+      WALE_BASE_BACKUP="LATEST"
+    fi
+
+    envdir /etc/wal-e.d/env /usr/local/bin/wal-e backup-fetch /tmp/pg-data $WALE_BASE_BACKUP
     cp -rf /tmp/pg-data/* $PGDATA
     rm -rf /tmp/pg-data
 
-    # Create recovery.conf
+    # Configure postgresql.conf
     echo "hot_standby      = 'on'" >> /var/lib/postgresql/data/postgresql.conf
     if [ -n "$POSTGRES_MAX_CONNECTIONS" ]; then
       echo "max_connections  = '$POSTGRES_MAX_CONNECTIONS'" >> /var/lib/postgresql/data/postgresql.conf
     fi
+
+    # Create recovery.conf
     echo "standby_mode     = 'on'" > $PGDATA/recovery.conf
     echo "restore_command  = 'envdir /etc/wal-e.d/env /usr/local/bin/wal-e wal-fetch "%f" "%p"'" >> $PGDATA/recovery.conf
     echo "trigger_file     = '$PGDATA/trigger'" >> $PGDATA/recovery.conf
